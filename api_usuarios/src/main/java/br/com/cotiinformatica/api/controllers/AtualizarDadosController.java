@@ -16,6 +16,4 @@ public class AtualizarDadosController {
 	public String put(@RequestBody @Valid AtualizarDadosDTO dto) {
 		return null;
 	}
-
-
 }
