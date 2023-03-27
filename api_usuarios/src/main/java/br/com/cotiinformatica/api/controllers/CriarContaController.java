@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.cotiinformatica.application.dtos.CriarContaDTO;
-import br.com.cotiinformatica.domain.interfaces.UsuarioService;
+import br.com.cotiinformatica.application.dtos.CriarContaResponseDTO;
+import br.com.cotiinformatica.application.interfaces.UsuarioAppService;
 import jakarta.validation.Valid;
 
 @RestController
@@ -17,13 +18,10 @@ import jakarta.validation.Valid;
 public class CriarContaController {
 	
 	@Autowired
-	private UsuarioService service;
+	UsuarioAppService service;
 	
 	@PostMapping("/criar-conta")
-	public ResponseEntity<Void> post(@RequestBody @Valid CriarContaDTO dto) {
-		return null;
-//		service.criarConta(dto);
-//		return ResponseEntity.status(HttpStatus.CREATED).body(null);
+	public ResponseEntity<CriarContaResponseDTO> post(@RequestBody @Valid CriarContaDTO dto) {
+		return ResponseEntity.status(HttpStatus.CREATED).body(service.criarConta(dto));
 	}
-
 }
