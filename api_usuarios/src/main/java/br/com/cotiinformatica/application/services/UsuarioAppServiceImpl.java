@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.cotiinformatica.application.dtos.AtualizarDadosDTO;
+import br.com.cotiinformatica.application.dtos.AtualizarDadosResponseDTO;
 import br.com.cotiinformatica.application.dtos.AutenticarDTO;
 import br.com.cotiinformatica.application.dtos.AutenticarResponseDTO;
 import br.com.cotiinformatica.application.dtos.CriarContaDTO;
@@ -80,7 +82,31 @@ public class UsuarioAppServiceImpl implements UsuarioAppService {
 
 	@Override
 	public RecuperarSenhaResponseDTO recuperarSenha(RecuperarSenhaDTO dto) {
-		// TODO Auto-generated method stub
-		return null;
+		ModelMapper modelMapper = new ModelMapper();
+		
+		Usuario usuario = usuarioDomainService.recuperarSenha(dto.getEmail());
+		RecuperarSenhaResponseDTO recuperarSenhaResponse = modelMapper.map(usuario, RecuperarSenhaResponseDTO.class);
+		recuperarSenhaResponse.setMensagem("Foi enviada uma nova senha para o seu email.");
+		
+		EmailMessageDTO emailMessageDTO = new EmailMessageDTO();
+		emailMessageDTO.setTo(usuario.getEmail());
+		emailMessageDTO.setSubject("Recuperação de senha realizada com sucesso!");
+		emailMessageDTO.setBody("Olá, " + usuario.getNome() + ". Acesse o sistema com a senha: " + usuario.getNovaSenha() + "<br/>Att,<br/>API Usuários");
+		
+		CompletableFuture.runAsync(() -> messageProducer.send(criarMessageProducer(emailMessageDTO)));
+		
+		return recuperarSenhaResponse;
+	}
+
+	@Override
+	public AtualizarDadosResponseDTO atualizarDados(AtualizarDadosDTO dto) {
+		ModelMapper modelMapper = new ModelMapper();
+		
+		Usuario usuarioAtualizado = usuarioDomainService.atualizarDados(modelMapper.map(dto, Usuario.class));
+		
+		AtualizarDadosResponseDTO atualizarDadosResponse = modelMapper.map(usuarioAtualizado, AtualizarDadosResponseDTO.class);
+		atualizarDadosResponse.setMensagem("Usuário atualizado com sucesso.");
+		
+		return atualizarDadosResponse;
 	}
 }

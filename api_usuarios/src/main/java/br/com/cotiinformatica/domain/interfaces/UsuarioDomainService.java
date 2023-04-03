@@ -9,4 +9,6 @@ public interface UsuarioDomainService {
 	Usuario autenticar(String email, String senha);
 	
 	Usuario recuperarSenha(String email);
+	
+	Usuario atualizarDados(Usuario usuario);
 }

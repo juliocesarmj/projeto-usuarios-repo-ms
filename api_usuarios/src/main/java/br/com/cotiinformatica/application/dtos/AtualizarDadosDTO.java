@@ -1,6 +1,6 @@
 package br.com.cotiinformatica.application.dtos;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AtualizarDadosDTO {
 	
-	@Min(value = 1, message = "Informe um id válido.")
-	private Integer id;
+	@NotBlank(message = "Id do usuário é obrigatório.")
+	private String id;
 	
 	@Size(min = 8, max = 150, message = "Nome do usuário deve ter de 8 a 150 caracteres.")
 	private String nome;

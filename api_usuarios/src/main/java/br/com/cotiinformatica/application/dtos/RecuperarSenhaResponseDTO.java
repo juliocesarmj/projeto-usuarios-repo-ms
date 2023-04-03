@@ -1,5 +1,16 @@
 package br.com.cotiinformatica.application.dtos;
 
-public class RecuperarSenhaResponseDTO {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class RecuperarSenhaResponseDTO {
+	
+	private String mensagem;
+	private String id;
+	private String nome;
+	private String email;
 }

@@ -5,6 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.github.javafaker.Faker;
+
 import br.com.cotiinformatica.domain.interfaces.UsuarioDomainService;
 import br.com.cotiinformatica.domain.models.Usuario;
 import br.com.cotiinformatica.infrastructure.component.MD5Component;
@@ -12,14 +14,14 @@ import br.com.cotiinformatica.infrastructure.repositories.UsuarioRepository;
 import br.com.cotiinformatica.infrastructure.security.TokenCreator;
 
 @Service
-public class UsuarioServiceImpl implements UsuarioDomainService {
+public class UsuarioDomainServiceImpl implements UsuarioDomainService {
 
 	private final UsuarioRepository usuarioRepository;
 	private final MD5Component md5Component;
 	private final TokenCreator tokenCreator;
 
 
-	public UsuarioServiceImpl(UsuarioRepository usuarioRepository, MD5Component md5Component, TokenCreator tokenCreator) {
+	public UsuarioDomainServiceImpl(UsuarioRepository usuarioRepository, MD5Component md5Component, TokenCreator tokenCreator) {
 		this.usuarioRepository = usuarioRepository;
 		this.md5Component = md5Component;
 		this.tokenCreator = tokenCreator;
@@ -55,7 +57,33 @@ public class UsuarioServiceImpl implements UsuarioDomainService {
 
 	@Override
 	public Usuario recuperarSenha(String email) {
-		// TODO Auto-generated method stub
-		return null;
+		 Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Usuário inválido. Verifique o email informado."));
+		Faker fake = new Faker();
+		usuario.setNovaSenha(fake.internet().password(8, 10, true, true, true));
+		
+		usuario.setSenha(md5Component.encrypt(usuario.getNovaSenha()));
+		
+		return usuarioRepository.save(usuario);
+	}
+
+	@Override
+	public Usuario atualizarDados(Usuario usuario) {
+		Usuario usuarioAtualizado = findById(usuario.getId());
+		
+		if(usuario.getNome() != null)
+			usuarioAtualizado.setNome(usuario.getNome());
+		
+		if(usuario.getSenha() != null)
+			usuarioAtualizado.setSenha(md5Component.encrypt(usuario.getSenha()));
+		
+		usuarioAtualizado.setDtaHoraUltimaAtualizacao(Instant.now());
+		
+		usuarioRepository.save(usuarioAtualizado);
+		
+		return usuarioAtualizado;
+	}
+	
+	private Usuario findById(String id) {
+		return usuarioRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado. Verifique o id informado."));
 	}
 }
