@@ -10,9 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import br.com.cotiinformatica.application.dtos.AutenticarDTO;
+import br.com.cotiinformatica.application.dtos.AutenticarResponseDTO;
 import br.com.cotiinformatica.application.dtos.CriarContaDTO;
 import br.com.cotiinformatica.application.dtos.CriarContaResponseDTO;
 import br.com.cotiinformatica.application.dtos.EmailMessageDTO;
+import br.com.cotiinformatica.application.dtos.RecuperarSenhaDTO;
+import br.com.cotiinformatica.application.dtos.RecuperarSenhaResponseDTO;
 import br.com.cotiinformatica.application.interfaces.UsuarioAppService;
 import br.com.cotiinformatica.domain.interfaces.UsuarioDomainService;
 import br.com.cotiinformatica.domain.models.Usuario;
@@ -25,10 +29,10 @@ public class UsuarioAppServiceImpl implements UsuarioAppService {
 
 	@Autowired
 	UsuarioDomainService usuarioDomainService;
-	
+
 	@Autowired
 	MessageProducer messageProducer;
-	
+
 	@Autowired
 	ObjectMapper objectMapper;
 
@@ -36,16 +40,16 @@ public class UsuarioAppServiceImpl implements UsuarioAppService {
 	@Transactional
 	public CriarContaResponseDTO criarConta(CriarContaDTO dto) {
 		ModelMapper modelMapper = new ModelMapper();
-		
+
 		Usuario usuario = modelMapper.map(dto, Usuario.class);
-		
+
 		usuarioDomainService.criarConta(usuario);
 		CriarContaResponseDTO response = modelMapper.map(usuario, CriarContaResponseDTO.class);
 		response.setMensagem("Usuario criado com sucesso.");
 		CompletableFuture.runAsync(() -> messageProducer.send(criarMessageProducer(novoDto(usuario))));
 		return response;
-	}	
-	
+	}
+
 	private String criarMessageProducer(EmailMessageDTO dto) {
 		try {
 			return objectMapper.writeValueAsString(dto);
@@ -54,13 +58,29 @@ public class UsuarioAppServiceImpl implements UsuarioAppService {
 			return null;
 		}
 	}
-	
+
 	private EmailMessageDTO novoDto(Usuario usuario) {
 		EmailMessageDTO emailMessageDTO = new EmailMessageDTO();
 		emailMessageDTO.setTo(usuario.getEmail());
 		emailMessageDTO.setSubject("Parabéns " + usuario.getNome() + ", sua conta foi criada com sucesso!");
-		emailMessageDTO.setBody("Olá, sua conta de usuário foi criada com sucesso em nosso sistema!<br/>Att,<br/>API Usuários");
-		
+		emailMessageDTO.setBody(
+				"Olá, sua conta de usuário foi criada com sucesso em nosso sistema!<br/>Att,<br/>API Usuários");
+
 		return emailMessageDTO;
+	}
+
+	@Override
+	public AutenticarResponseDTO autenticar(AutenticarDTO dto) {
+		ModelMapper modelMapper = new ModelMapper();
+		Usuario usuario = usuarioDomainService.autenticar(dto.getEmail(), dto.getSenha());
+		AutenticarResponseDTO response = modelMapper.map(usuario, AutenticarResponseDTO.class);
+		response.setMensagem("Usuário autenticado com sucesso.");
+		return response;
+	}
+
+	@Override
+	public RecuperarSenhaResponseDTO recuperarSenha(RecuperarSenhaDTO dto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

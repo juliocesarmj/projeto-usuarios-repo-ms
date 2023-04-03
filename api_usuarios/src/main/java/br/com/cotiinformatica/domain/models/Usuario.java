@@ -3,6 +3,7 @@ package br.com.cotiinformatica.domain.models;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -28,5 +29,8 @@ public class Usuario {
 	@Field(name = "dta_hora_criacao")
 	private Instant dtaHoraCriacao;
 	private Instant dtaHoraUltimaAtualizacao;
+	
+	@Transient
+	private String accessToken;
 
 }
