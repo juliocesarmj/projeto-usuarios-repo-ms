@@ -1,6 +1,5 @@
 package br.com.cotiinformatica;
 
-import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -41,7 +40,7 @@ class ApiUsuariosApplicationTests {
 	private static String email;
 	private static String senha;
 	private static String accessToken;
-
+	
 	@Order(1)
 	@Test
 	void criarContaTest() throws Exception {
@@ -115,6 +114,23 @@ class ApiUsuariosApplicationTests {
 				.content(objectMapper.writeValueAsString(dto)))
 				.andExpect(status()
 				.isOk());
+	}
+	
+	@Order(5)
+	@Test
+	void criarContaEmailExisteTest() throws Exception {
+		CriarContaDTO dto = new CriarContaDTO();
+		Faker faker = new Faker();
+		dto.setNome(faker.name().fullName());
+		dto.setEmail("teste1@teste.com");
+		dto.setSenha("@Admin12312");
+		
+		mockMvc.perform(
+				 post("/api/usuarios/criar-conta")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(dto))
+				).andExpect(status().isBadRequest());
+		
 	}
 
 }
